@@ -24,6 +24,12 @@
   .msg{min-height:1.6em;margin-top:14px;color:var(--mut)}
   .go{font:inherit;font-size:1.1rem;margin-top:16px;padding:12px 22px;border:0;border-radius:12px;background:var(--acc);color:#1b1b1b;font-weight:700;cursor:pointer}
   .fine{text-align:center}
+  body.calma{background:#1e2a3a}
+  body.calma .q{font-size:1.6rem}
+  body.calma button.o{font-size:1.3rem;padding:18px}
+  body.calma .tempo{display:none}
+  label.calma{display:flex;gap:8px;align-items:center;margin-top:14px;color:var(--mut)}
+  label.calma input{width:20px;height:20px}
   .fine b{font-size:3rem;color:var(--acc);display:block;margin:10px 0}
 </style>
 </head>
@@ -42,10 +48,11 @@ const DOMANDE=[
 ];
 const SECONDI=20;
 const app=document.getElementById("app");
-let ordine,n,punti,timer,resta;
+let ordine,n,punti,timer,resta,calma=false;
 const mescola=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function inizio(){
-  app.innerHTML=`<h1>Quiz delle regioni</h1><p class="sub">Otto domande sui capoluoghi di regione. Hai ${SECONDI} secondi per ogni domanda.</p><button class="go" id="via">Comincia</button>`;
+  app.innerHTML=`<h1>Quiz delle regioni</h1><p class="sub">Otto domande sui capoluoghi di regione. Hai ${SECONDI} secondi per ogni domanda, oppure scegli la modalità calma.</p><button class="go" id="via">Comincia</button><label class="calma"><input type="checkbox" id="calma"> Modalità calma: senza tempo, testo più grande</label>`;
+  const c=document.getElementById("calma");c.checked=calma;c.onchange=()=>{calma=c.checked;document.body.classList.toggle("calma",calma)};
   document.getElementById("via").onclick=()=>{ordine=mescola(DOMANDE);n=0;punti=0;domanda()};
 }
 function domanda(){
@@ -56,7 +63,7 @@ function domanda(){
     <div class="opts">${opzioni.map(o=>`<button class="o">${o}</button>`).join("")}</div><p class="msg" id="m"></p>`;
   const bottoni=[...app.querySelectorAll("button.o")];
   resta=SECONDI;const t=document.getElementById("t");
-  clearInterval(timer);timer=setInterval(()=>{resta--;t.style.width=(resta/SECONDI*100)+"%";if(resta<=0)rispondi(null)},1000);
+  clearInterval(timer);if(!calma)timer=setInterval(()=>{resta--;t.style.width=(resta/SECONDI*100)+"%";if(resta<=0)rispondi(null)},1000);
   function rispondi(b){
     clearInterval(timer);bottoni.forEach(x=>{x.disabled=true;if(x.textContent===giusta)x.classList.add("ok")});
     const m=document.getElementById("m");
